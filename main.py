@@ -2,9 +2,7 @@ import cv2
 import numpy as np
 import os
 
-# =============================
 # CONFIGURATION
-# =============================
 DATASET_DIR = "dataset"
 OUTPUT_DIR = "outputs"
 
@@ -13,10 +11,7 @@ STICKER_WIDTH = 40         # sticker width (pixels)
 STICKER_HEIGHT = 20        # sticker height (pixels)
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# =============================
 # PROCESS EACH IMAGE
-# =============================
 for image_name in os.listdir(DATASET_DIR):
 
     if not image_name.lower().endswith((".jpg", ".png", ".jpeg")):
@@ -28,17 +23,14 @@ for image_name in os.listdir(DATASET_DIR):
     if image is None:
         print(f"Could not read {image_name}")
         continue
-
-    # -----------------------------
     # PREPROCESSING
-    # -----------------------------
+    
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     blur = cv2.GaussianBlur(gray, (5, 5), 0)
     edges = cv2.Canny(blur, 50, 150)
 
-    # -----------------------------
     # CONTOUR DETECTION
-    # -----------------------------
+    
     contours, _ = cv2.findContours(
         edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
@@ -49,9 +41,8 @@ for image_name in os.listdir(DATASET_DIR):
 
     box_contour = max(contours, key=cv2.contourArea)
 
-    # -----------------------------
     # ORIENTATION ESTIMATION
-    # -----------------------------
+
     rect = cv2.minAreaRect(box_contour)
     (cx, cy), (w, h), angle = rect
 
@@ -62,9 +53,8 @@ for image_name in os.listdir(DATASET_DIR):
     box = cv2.boxPoints(rect)
     box = np.int32(box)
 
-    # -----------------------------
-    # FIXED STICKER PLACEMENT (BOX FRAME)
-    # -----------------------------
+    #STICKER PLACEMENT (BOX FRAME)
+    
     theta = np.deg2rad(angle)
 
     dx = w / 2 - STICKER_OFFSET
@@ -76,7 +66,7 @@ for image_name in os.listdir(DATASET_DIR):
     sticker_x = int(cx + rot_x)
     sticker_y = int(cy + rot_y)
 
-    # DEBUG: visualize box-frame vector (center → sticker)
+    # Visualize box-frame vector (center → sticker)
     cv2.line(
         image,
         (int(cx), int(cy)),
@@ -85,9 +75,7 @@ for image_name in os.listdir(DATASET_DIR):
         1
     )
 
-    # -----------------------------
-    # DRAW STICKER AS ROTATED RECTANGLE
-    # -----------------------------
+    #Rectangle Sticker
     sticker_rect = (
         (sticker_x, sticker_y),
         (STICKER_WIDTH, STICKER_HEIGHT),
@@ -99,9 +87,7 @@ for image_name in os.listdir(DATASET_DIR):
 
     cv2.drawContours(image, [sticker_box], 0, (0, 0, 255), -1)
 
-    # -----------------------------
     # VISUALIZATION
-    # -----------------------------
     cv2.drawContours(image, [box], 0, (0, 255, 0), 2)
 
     # Orientation axis
@@ -116,15 +102,13 @@ for image_name in os.listdir(DATASET_DIR):
         2
     )
 
-    # -----------------------------
-    # SAVE OUTPUT
-    # -----------------------------
+    #  OUTPUT
+    
     output_path = os.path.join(OUTPUT_DIR, f"result_{image_name}")
     cv2.imwrite(output_path, image)
 
-    # -----------------------------
     # PRINT RESULTS
-    # -----------------------------
+
     print("===================================")
     print(f"Image: {image_name}")
     print(f"Orientation angle (deg): {round(angle, 2)}")
