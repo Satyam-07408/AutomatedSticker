@@ -30,10 +30,10 @@ For each input image, the system outputs:
 3.Annotated output image saved to disk
 
 **Approach**
-Image Preprocessing
-Box Detection
-Orientation Estimation
-Sticker Placement Logic
-Visualization--Green contour: detected box
-               Blue line: orientation axis
-               Red rectangle: sticker placement (rotated with box)
+1.Image Preprocessing
+2.Box Detection
+3.Orientation Estimation
+4.Sticker Placement Logic
+5.Visualization--Green contour: detected box
+                 Blue line: orientation axis
+                 Red rectangle: sticker placement (rotated with box)
